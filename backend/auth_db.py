@@ -50,7 +50,11 @@ def get_connection():
             "ssl_verify_identity": True,
         })
 
-    return mysql.connector.connect(**config)
+    return mysql.connector.connect(
+    pool_name="smartpm_pool",
+    pool_size=5,
+    **config
+)
 
 
 def init_db():
