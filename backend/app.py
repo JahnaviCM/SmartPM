@@ -68,15 +68,27 @@ app = Flask(
     static_folder=STATIC_DIR,
 )
 
-SECRET_FILE = os.path.join(BACKEND_DIR, ".secret_key")
+# =========================================================
+# FLASK SECRET KEY CONFIGURATION
+# =========================================================
 
-if os.path.exists(SECRET_FILE):
-    with open(SECRET_FILE, "rb") as secret_file:
-        SECRET_KEY = secret_file.read()
-else:
-    SECRET_KEY = secrets.token_bytes(32)
-    with open(SECRET_FILE, "wb") as secret_file:
-        secret_file.write(SECRET_KEY)
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
+if not SECRET_KEY:
+    if os.environ.get("RENDER"):
+        raise RuntimeError(
+            "SECRET_KEY environment variable is missing on Render."
+        )
+
+    SECRET_FILE = os.path.join(BACKEND_DIR, ".secret_key")
+
+    if os.path.exists(SECRET_FILE):
+        with open(SECRET_FILE, "rb") as secret_file:
+            SECRET_KEY = secret_file.read()
+    else:
+        SECRET_KEY = secrets.token_bytes(32)
+        with open(SECRET_FILE, "wb") as secret_file:
+            secret_file.write(SECRET_KEY)
 
 app.secret_key = SECRET_KEY
 
