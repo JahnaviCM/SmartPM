@@ -4,61 +4,58 @@ import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-def get_mysql_config():
-    """Build the MySQL configuration from environment variables."""
-    host = os.getenv("SMARTPM_DB_HOST", "localhost")
-    port = int(os.getenv("SMARTPM_DB_PORT", "3306"))
-    user = os.getenv("SMARTPM_DB_USER", "smartpm_app")
-    password = os.getenv("SMARTPM_DB_PASSWORD", "")
-    database = os.getenv("SMARTPM_DB_NAME", "smartpm_db")
+# Database configuration.
+# Local defaults preserve your existing local SmartPM setup.
+# On Render, configure these values using Environment Variables.
+MYSQL_CONFIG = {
+    "host": os.getenv("SMARTPM_DB_HOST", "localhost"),
+    "port": int(os.getenv("SMARTPM_DB_PORT", "3306")),
+    "user": os.getenv("SMARTPM_DB_USER", "smartpm_app"),
+    "password": os.getenv("SMARTPM_DB_PASSWORD", ""),
+    "database": os.getenv("SMARTPM_DB_NAME", "smartpm_db"),
+    "connection_timeout": 15,
+}
 
-    if not password:
+
+def get_connection():
+    """Connect to MySQL, verifying TLS for cloud database connections."""
+
+    if not MYSQL_CONFIG["password"]:
         raise RuntimeError(
             "MySQL password is not configured. "
-            "Set the SMARTPM_DB_PASSWORD environment variable."
+            "Set SMARTPM_DB_PASSWORD."
         )
 
-    config = {
-        "host": host,
-        "port": port,
-        "user": user,
-        "password": password,
-        "database": database,
-        "connection_timeout": 15,
-    }
+    config = MYSQL_CONFIG.copy()
+    host = config["host"].lower()
 
-    # Require a trusted CA certificate for remote database connections.
+    # Cloud database connections must use a trusted CA certificate.
     if host not in ("localhost", "127.0.0.1", "::1"):
-        ca_path = os.getenv("SMARTPM_DB_SSL_CA")
+        ssl_ca = os.getenv("SMARTPM_DB_SSL_CA")
 
-        if not ca_path:
+        if not ssl_ca:
             raise RuntimeError(
                 "Cloud MySQL requires a CA certificate. "
-                "Set SMARTPM_DB_SSL_CA to the certificate file path."
+                "Configure SMARTPM_DB_SSL_CA in your environment."
             )
 
-        if not os.path.isfile(ca_path):
+        if not os.path.isfile(ssl_ca):
             raise RuntimeError(
-                "The MySQL CA certificate file was not found. "
-                "Check SMARTPM_DB_SSL_CA."
+                f"MySQL CA certificate was not found at: {ssl_ca}"
             )
 
         config.update({
-            "ssl_ca": ca_path,
+            "ssl_ca": ssl_ca,
             "ssl_verify_cert": True,
             "ssl_verify_identity": True,
         })
 
-    return config
-
-
-def get_connection():
-    """Create a secure connection to the SmartPM MySQL database."""
-    return mysql.connector.connect(**get_mysql_config())
+    return mysql.connector.connect(**config)
 
 
 def init_db():
     """Create the users table if it does not already exist."""
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -75,19 +72,31 @@ def init_db():
         connection.commit()
         print("MySQL authentication database initialized successfully.")
 
+    except Exception:
+        connection.rollback()
+        raise
+
     finally:
         cursor.close()
         connection.close()
 
 
 def create_user(username, password, role="user", approved=False):
+    """Create a user with a securely hashed password."""
+
+    if not isinstance(username, str):
+        raise ValueError("Username must be text.")
+
     username = username.strip()
 
     if not username or len(username) > 80:
         raise ValueError("Username must contain 1–80 characters.")
 
-    if len(password) < 12:
+    if not isinstance(password, str) or len(password) < 12:
         raise ValueError("Password must contain at least 12 characters.")
+
+    if len(password) > 1024:
+        raise ValueError("Password is too long.")
 
     if role not in ("admin", "user"):
         raise ValueError("Invalid user role.")
@@ -102,7 +111,7 @@ def create_user(username, password, role="user", approved=False):
             INSERT INTO users (username, password_hash, role, approved)
             VALUES (%s, %s, %s, %s)
             """,
-            (username, password_hash, role, int(approved)),
+            (username, password_hash, role, int(bool(approved))),
         )
         connection.commit()
 
@@ -116,6 +125,8 @@ def create_user(username, password, role="user", approved=False):
 
 
 def get_user_by_username(username):
+    """Return a user record by username, or None if not found."""
+
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -132,6 +143,8 @@ def get_user_by_username(username):
 
 
 def get_user_by_id(user_id):
+    """Return a user record by ID, or None if not found."""
+
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -148,8 +161,11 @@ def get_user_by_id(user_id):
 
 
 def verify_password(user, password):
+    """Verify a submitted password against the stored password hash."""
+
     return bool(
         user
+        and isinstance(password, str)
         and check_password_hash(user["password_hash"], password)
     )
 
