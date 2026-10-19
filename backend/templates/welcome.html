@@ -1,0 +1,455 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080c10">
+    <title>SmartPM | Smart Predictive Maintenance</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #080c10;
+            --green: #c9f269;
+            --text: #f5f7f2;
+            --muted: #9daab2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        /* Animated background */
+        .ambient {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 50% 38%, #183526 0%, transparent 48%),
+                radial-gradient(ellipse at 10% 90%, #102130 0%, transparent 40%),
+                var(--bg);
+        }
+
+        .grid {
+            position: absolute;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            opacity: 0.16;
+            background-image:
+                linear-gradient(#9acb7520 1px, transparent 1px),
+                linear-gradient(90deg, #9acb7520 1px, transparent 1px);
+            background-size: 58px 58px;
+            transform: perspective(700px) rotateX(12deg);
+            animation: gridDrift 35s linear infinite;
+            mask-image: radial-gradient(ellipse at center, black, transparent 72%);
+        }
+
+        .glow {
+            position: absolute;
+            width: 430px;
+            height: 430px;
+            border-radius: 50%;
+            background: #8cbd4d;
+            filter: blur(150px);
+            opacity: 0.08;
+            left: calc(50% - 215px);
+            top: calc(50% - 215px);
+            animation: glowBreath 7s ease-in-out infinite;
+        }
+
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            inset: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--green);
+            opacity: 0;
+            box-shadow: 0 0 12px var(--green);
+            animation: rise 9s linear infinite;
+        }
+
+        .particle:nth-child(1) { left: 12%; top: 85%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 22%; top: 95%; animation-delay: 2s; }
+        .particle:nth-child(3) { left: 76%; top: 90%; animation-delay: 4s; }
+        .particle:nth-child(4) { left: 88%; top: 80%; animation-delay: 1s; }
+        .particle:nth-child(5) { left: 65%; top: 98%; animation-delay: 5s; }
+        .particle:nth-child(6) { left: 40%; top: 88%; animation-delay: 3s; }
+        .particle:nth-child(7) { left: 94%; top: 96%; animation-delay: 6s; }
+        .particle:nth-child(8) { left: 5%; top: 92%; animation-delay: 7s; }
+        .particle:nth-child(9) { left: 54%; top: 94%; animation-delay: 1.5s; }
+        .particle:nth-child(10) { left: 33%; top: 98%; animation-delay: 4.5s; }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 0 180px #0009;
+            z-index: 1;
+        }
+
+        /* Main welcome section */
+        .welcome {
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: contentEnter 1.2s cubic-bezier(.2, .7, .2, 1) both;
+        }
+
+        /* Animated logo */
+        .logo-wrap {
+            width: 112px;
+            height: 112px;
+            margin: 0 auto 28px;
+            position: relative;
+            display: grid;
+            place-items: center;
+        }
+
+        .logo-ring {
+            position: absolute;
+            inset: 0;
+            border: 1px solid #c9f26938;
+            border-radius: 32px;
+            transform: rotate(45deg);
+            animation: ringRotate 18s linear infinite;
+        }
+
+        .logo-ring::before {
+            content: "";
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 15px var(--green);
+        }
+
+        .logo-ring.second {
+            inset: 10px;
+            border-style: dashed;
+            opacity: 0.5;
+            animation-direction: reverse;
+            animation-duration: 26s;
+        }
+
+        .logo {
+            width: 73px;
+            height: 73px;
+            border-radius: 22px;
+            display: grid;
+            place-items: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(140deg, #dafa94, #a9d84e);
+            color: #10170b;
+            font: 800 43px 'Manrope', sans-serif;
+            box-shadow:
+                0 0 35px #c9f26928,
+                0 0 90px #c9f26910,
+                inset 0 1px 0 #ffffff80;
+            animation: logoFloat 4.5s ease-in-out infinite;
+        }
+
+        .logo::after {
+            content: "";
+            position: absolute;
+            top: -70%;
+            left: -100%;
+            width: 65%;
+            height: 240%;
+            transform: rotate(25deg);
+            background: linear-gradient(90deg, transparent, #ffffff95, transparent);
+            animation: logoSweep 4.5s ease-in-out infinite;
+        }
+
+        /* Brand and description */
+        .brand {
+            font: 800 clamp(53px, 9vw, 79px)/1.05 'Manrope', sans-serif;
+            letter-spacing: -4px;
+            opacity: 0;
+            animation: textEnter .8s ease .25s forwards;
+        }
+
+        .brand span {
+            color: var(--green);
+        }
+
+        .subtitle {
+            margin-top: 16px;
+            color: var(--green);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: textEnter .8s ease .45s forwards;
+        }
+
+        .divider {
+            width: 0;
+            height: 2px;
+            margin: 31px auto;
+            border-radius: 5px;
+            background: var(--green);
+            box-shadow: 0 0 16px #c9f26965;
+            animation: lineExpand .8s ease .65s forwards;
+        }
+
+        .description {
+            max-width: 550px;
+            margin: 0 auto;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.95;
+            opacity: 0;
+            animation: textEnter .8s ease .75s forwards;
+        }
+
+        .tagline {
+            margin-top: 30px;
+            font: 600 15px 'Manrope', sans-serif;
+            color: #e5eee7;
+            opacity: 0;
+            animation: textEnter .8s ease .95s forwards;
+        }
+
+        .tagline span {
+            color: var(--green);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 24px;
+            left: 20px;
+            right: 20px;
+            z-index: 2;
+            text-align: center;
+            color: #67757d;
+            font-size: 9px;
+            letter-spacing: 2px;
+            animation: fadeIn 1.5s ease 1s both;
+        }
+
+        /* Animation definitions */
+        @keyframes contentEnter {
+            from {
+                opacity: 0;
+                transform: translateY(22px) scale(.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes textEnter {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes lineExpand {
+            from { width: 0; }
+            to { width: 58px; }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes logoSweep {
+            0%, 30% { left: -100%; }
+            65%, 100% { left: 150%; }
+        }
+
+        @keyframes ringRotate {
+            to { transform: rotate(405deg); }
+        }
+
+        @keyframes glowBreath {
+            0%, 100% {
+                opacity: .055;
+                transform: scale(.9);
+            }
+            50% {
+                opacity: .12;
+                transform: scale(1.15);
+            }
+        }
+
+        @keyframes gridDrift {
+            from {
+                transform: perspective(700px) rotateX(12deg) translateY(0);
+            }
+            to {
+                transform: perspective(700px) rotateX(12deg) translateY(58px);
+            }
+        }
+
+        @keyframes rise {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(.7);
+            }
+            15% { opacity: .65; }
+            80% { opacity: .4; }
+            100% {
+                opacity: 0;
+                transform: translateY(-90vh) scale(1.2);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            .logo-wrap {
+                width: 94px;
+                height: 94px;
+                margin-bottom: 25px;
+            }
+
+            .logo {
+                width: 64px;
+                height: 64px;
+                font-size: 37px;
+                border-radius: 19px;
+            }
+
+            .brand {
+                letter-spacing: -2.5px;
+            }
+
+            .subtitle {
+                font-size: 9px;
+                letter-spacing: 2.5px;
+            }
+
+            .description {
+                font-size: 13px;
+                line-height: 1.9;
+            }
+
+            .tagline {
+                font-size: 13px;
+            }
+
+            .footer {
+                font-size: 8px;
+                letter-spacing: 1px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient">
+        <div class="grid"></div>
+        <div class="glow"></div>
+
+        <div class="particles" aria-hidden="true">
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+        </div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <main class="welcome">
+        <div class="logo-wrap" aria-label="SmartPM logo">
+            <div class="logo-ring"></div>
+            <div class="logo-ring second"></div>
+            <div class="logo">S</div>
+        </div>
+
+        <h1 class="brand">Smart<span>PM</span></h1>
+
+        <p class="subtitle">Smart Predictive Maintenance</p>
+
+        <div class="divider"></div>
+
+        <p class="description">
+            An intelligent machine-learning system that analyzes
+            industrial machine measurements to predict potential
+            failures and support smarter maintenance decisions.
+        </p>
+
+        <p class="tagline">
+            Predict earlier. <span>Maintain smarter.</span>
+        </p>
+    </main>
+
+    <footer class="footer">
+        SMARTPM · MACHINE LEARNING · INDUSTRIAL ANALYTICS
+    </footer>
+
+    
+<script>
+    const loginUrl = "{{ url_for('login') }}";
+
+    document.addEventListener("click", function () {
+        window.location.href = loginUrl;
+    });
+</script>
+
+</body>
+</html>

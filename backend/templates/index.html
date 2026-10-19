@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090d12">
+  <title>SmartPM | Predictive Maintenance Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #090d12;
+      --panel: #111a22;
+      --green: #c9f269;
+      --text: #f5f7f2;
+      --muted: #a4b0b7;
+      --line: #26343c;
+      --red: #ff8585;
+      --yellow: #f5c451;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 100px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    ::selection {
+      background: var(--green);
+      color: #10170b;
+    }
+
+    .progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      z-index: 100;
+      background: #ffffff08;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: var(--green);
+      box-shadow: 0 0 12px #c9f26980;
+    }
+
+    .nav {
+      position: sticky;
+      top: 3px;
+      z-index: 50;
+      min-height: 76px;
+      padding: 12px 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: #090d12ed;
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid #ffffff13;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: var(--green);
+      color: #11170b;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .brand small {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .navlinks {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .navlinks > a:hover {
+      color: var(--green);
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--green);
+      color: #10170b;
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .25s;
+    }
+
+    .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px #c9f26930;
+    }
+
+    .outline {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 11px 15px;
+      font-size: 12px;
+      color: #d5e0d9;
+      background: transparent;
+      cursor: pointer;
+      transition: .25s;
+    }
+
+    .outline:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .logout {
+      margin: 0;
+    }
+
+    .logout button {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 9px;
+      padding: 10px 13px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .logout button:hover {
+      color: var(--red);
+      border-color: #ff858566;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: auto;
+      padding: 0 6%;
+    }
+
+    section[id] {
+      scroll-margin-top: 100px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px #c9f269a0;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: .5;
+        box-shadow: 0 0 3px #c9f269;
+      }
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: Manrope, sans-serif;
+    }
+
+    h1 {
+      font-size: clamp(42px, 6vw, 72px);
+      line-height: 1.07;
+      letter-spacing: -3px;
+      margin: 22px 0 18px;
+      max-width: 850px;
+    }
+
+    h1 span,
+    .accent {
+      color: var(--green);
+    }
+
+    .lead {
+      max-width: 680px;
+      color: var(--muted);
+      line-height: 1.9;
+      font-size: 15px;
+    }
+
+    .micro {
+      font-size: 11px;
+      color: #74818a;
+    }
+
+    .hero {
+      min-height: 590px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero:before {
+      content: "";
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      right: -180px;
+      top: -100px;
+      background: #224a32;
+      filter: blur(110px);
+      opacity: .32;
+      pointer-events: none;
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ticker {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 16px 0;
+      color: #a2b0b4;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+    }
+
+    .ticker span:before {
+      content: "✳";
+      color: var(--green);
+      margin-right: 9px;
+    }
+
+    .section {
+      padding: 82px 0;
+      position: relative;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: -1.8px;
+      margin-top: 13px;
+      line-height: 1.2;
+    }
+
+    .section-head p {
+      max-width: 440px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.9;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      filter: blur(3px);
+      transition:
+        opacity .75s ease,
+        transform .75s cubic-bezier(.2,.7,.2,1),
+        filter .75s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      padding: 23px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: linear-gradient(145deg, #121c24, #0d1319);
+      transition: transform .3s, border-color .3s;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: #c9f26965;
+    }
+
+    .number {
+      font-size: 10px;
+      color: var(--green);
+      letter-spacing: 1.5px;
+    }
+
+    .card h3 {
+      font-size: 17px;
+      margin: 18px 0 9px;
+    }
+
+    .card p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .cardicon {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: #c9f26912;
+      border: 1px solid #c9f2692b;
+      font-size: 19px;
+    }
+
+    .story {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      align-items: stretch;
+    }
+
+    .story-panel {
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background:
+        radial-gradient(ellipse at 90% 0, #1c3b2a66, transparent 45%),
+        var(--panel);
+    }
+
+    .story-panel h2 {
+      font-size: clamp(27px, 3vw, 39px);
+      letter-spacing: -1.5px;
+      line-height: 1.2;
+      margin: 17px 0;
+    }
+
+    .story-panel p {
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    .benefits {
+      display: grid;
+      gap: 13px;
+      margin-top: 23px;
+    }
+
+    .benefit {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      font-size: 12px;
+      color: #d7e1da;
+    }
+
+    .tick {
+      color: var(--green);
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .photo-panel {
+      position: relative;
+      min-height: 340px;
+      border: 1px solid #ffffff16;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #111a22;
+    }
+
+    .photo-panel img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(.5) saturate(.7);
+      transition: transform .8s;
+    }
+
+    .photo-panel:hover img {
+      transform: scale(1.05);
+    }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 25%, #090d12ee);
+    }
+
+    .photo-caption {
+      position: absolute;
+      left: 25px;
+      right: 25px;
+      bottom: 24px;
+    }
+
+    .photo-caption span {
+      font-size: 10px;
+      letter-spacing: 1.7px;
+      color: var(--green);
+      text-transform: uppercase;
+    }
+
+    .photo-caption h3 {
+      font-size: 25px;
+      margin-top: 8px;
+      line-height: 1.3;
+    }
+
+    /* Prediction form */
+
+    .prediction {
+      display: grid;
+      grid-template-columns: .78fr 1.22fr;
+      gap: 25px;
+      align-items: start;
+    }
+
+    .prediction-intro {
+      padding: 28px 0;
+    }
+
+    .prediction-intro h2 {
+      font-size: clamp(31px, 4vw, 45px);
+      letter-spacing: -2px;
+      line-height: 1.15;
+      margin: 18px 0;
+    }
+
+    .prediction-intro p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.9;
+    }
+
+    .note-box {
+      border-left: 2px solid var(--green);
+      padding: 12px 15px;
+      margin-top: 23px;
+      background: #c9f2690a;
+      color: #aebbb1;
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    .formbox {
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: linear-gradient(145deg, #121b23, #0c1218);
+      padding: 28px;
+      box-shadow: 0 25px 60px #0003;
+    }
+
+    .form-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+
+    .form-head h3 {
+      font-size: 19px;
+    }
+
+    .badge {
+      border: 1px solid #c9f2694d;
+      border-radius: 99px;
+      padding: 6px 9px;
+      color: var(--green);
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: #d3ded6;
+      margin-bottom: 8px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-width: 0;
+      background: #090f14;
+      border: 1px solid #2a3942;
+      color: var(--text);
+      border-radius: 9px;
+      padding: 12px;
+      outline: none;
+      transition: border-color .25s, box-shadow .25s;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px #c9f26915;
+    }
+
+    .field input::placeholder {
+      color: #596771;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: #73818a;
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    .submit {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      background: var(--green);
+      color: #10170b;
+      padding: 14px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 21px;
+      transition: transform .25s, box-shadow .25s;
+    }
+
+    .submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px #c9f26924;
+    }
+
+    .submit:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    /* Prediction result */
+
+    .result {
+      margin-top: 20px;
+      padding: 19px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: #0a1015;
+      animation: rise .45s ease both;
+      scroll-margin-top: 100px;
+    }
+
+    .result.normal {
+      border-color: #c9f26966;
+    }
+
+    .result.failure {
+      border-color: #ff858566;
+    }
+
+    .result-title {
+      font: 800 19px Manrope, sans-serif;
+      margin: 8px 0;
+    }
+
+    .result.normal .result-title {
+      color: var(--green);
+    }
+
+    .result.failure .result-title {
+      color: var(--red);
+    }
+
+    .result p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .result-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      color: var(--muted);
+    }
+
+    .risk-panel {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .risk-heading,
+    .risk-details {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .risk-heading {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .risk-heading strong {
+      color: var(--text);
+      font-size: 23px;
+      font-family: Manrope, sans-serif;
+    }
+
+    .probability-track {
+      height: 9px;
+      margin: 12px 0 17px;
+      overflow: hidden;
+      background: #26343c;
+      border-radius: 99px;
+    }
+
+    .probability-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .5s ease;
+    }
+
+    .risk-low {
+      background: var(--green);
+    }
+
+    .risk-medium {
+      background: var(--yellow);
+    }
+
+    .risk-high {
+      background: var(--red);
+    }
+
+    .risk-details {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .risk-label {
+      font-size: 13px;
+    }
+
+    .risk-text-low {
+      color: var(--green);
+    }
+
+    .risk-text-medium {
+      color: var(--yellow);
+    }
+
+    .risk-text-high {
+      color: var(--red);
+    }
+
+    .threshold-note,
+    .risk-disclaimer {
+      margin-top: 9px;
+      font-size: 10px !important;
+      color: #849199 !important;
+    }
+
+    .maintenance-note {
+      margin-top: 16px;
+      padding: 13px;
+      background: #ffffff06;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .maintenance-note strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .maintenance-note p {
+      font-size: 11px !important;
+    }
+
+    .download-row {
+      margin-top: 17px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Model performance */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 13px;
+    }
+
+    .metric {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--panel);
+      position: relative;
+      overflow: hidden;
+      transition: transform .3s, border-color .3s;
+    }
+
+    .metric:hover {
+      transform: translateY(-4px);
+      border-color: #c9f26955;
+    }
+
+    .metric:after {
+      content: "";
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      right: -35px;
+      bottom: -50px;
+      background: #c9f26912;
+      border-radius: 50%;
+    }
+
+    .metric label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .metric strong {
+      display: block;
+      font: 800 clamp(24px, 3vw, 35px) Manrope, sans-serif;
+      color: var(--green);
+      letter-spacing: -1px;
+      margin: 13px 0 5px;
+    }
+
+    .metric small {
+      color: #77868d;
+      font-size: 10px;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 17px;
+      margin-top: 22px;
+    }
+
+    .chartbox {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      padding: 21px;
+      min-width: 0;
+      transition: transform .3s, border-color .3s;
+    }
+
+    .chartbox:hover {
+      transform: translateY(-3px);
+      border-color: #c9f26940;
+    }
+
+    .chartbox h3 {
+      font-size: 16px;
+    }
+
+    .chartbox p {
+      font-size: 11px;
+      color: var(--muted);
+      margin: 5px 0 16px;
+    }
+
+    .chartbox img {
+      width: 100%;
+      height: auto;
+      max-height: 340px;
+      object-fit: contain;
+      border-radius: 9px;
+      background: #fff;
+    }
+
+    .closing {
+      padding: 38px;
+      border-radius: 20px;
+      border: 1px solid #c9f2693b;
+      background:
+        radial-gradient(ellipse at 100% 0, #21452f, transparent 65%),
+        #101820;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .closing h2 {
+      font-size: clamp(25px, 3.2vw, 37px);
+      letter-spacing: -1.4px;
+      margin: 10px 0;
+    }
+
+    .closing p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 660px;
+    }
+
+    footer {
+      padding: 25px 6%;
+      border-top: 1px solid #ffffff13;
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+      font-size: 10px;
+      color: #718088;
+      letter-spacing: .4px;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media(max-width: 950px) {
+      .navlinks {
+        gap: 12px;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .prediction {
+        grid-template-columns: 1fr;
+      }
+
+      .prediction-intro {
+        padding-bottom: 0;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media(max-width: 700px) {
+      .nav {
+        padding: 12px 4%;
+        min-height: 68px;
+      }
+
+      .navlinks {
+        gap: 8px;
+      }
+
+      .navlinks > a:not(.cta) {
+        display: none;
+      }
+
+      .brand {
+        font-size: 17px;
+      }
+
+      .brand small {
+        font-size: 8px;
+      }
+
+      .container {
+        padding: 0 5%;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 65px 0 48px;
+      }
+
+      h1 {
+        letter-spacing: -2px;
+      }
+
+      .section {
+        padding: 58px 0;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .story {
+        grid-template-columns: 1fr;
+      }
+
+      .photo-panel {
+        min-height: 270px;
+      }
+
+      .charts {
+        grid-template-columns: 1fr;
+      }
+
+      .closing {
+        padding: 28px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media(max-width: 470px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .fields {
+        grid-template-columns: 1fr;
+      }
+
+      .formbox {
+        padding: 19px;
+      }
+
+      .metrics {
+        gap: 9px;
+      }
+
+      .metric {
+        padding: 15px;
+      }
+
+      .metric strong {
+        font-size: 26px;
+      }
+
+      .ticker {
+        gap: 10px;
+      }
+
+      .ticker span {
+        width: 45%;
+      }
+
+      .hero-bottom {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .form-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .story-panel {
+        padding: 24px;
+      }
+    }
+
+    @media(prefers-reduced-motion: reduce) {
+      *,
+      *:before,
+      *:after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+        filter: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="progress-track">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <nav class="nav">
+    <a class="brand" href="{{ url_for('home') }}">
+      <span class="logo">S</span>
+      <span>
+        SmartPM
+        <small>PREDICTIVE MAINTENANCE</small>
+      </span>
+    </a>
+
+    <div class="navlinks">
+      <a href="#approach">Our approach</a>
+      <a href="#prediction">Prediction</a>
+      <a href="#performance">Performance</a>
+      <a href="{{ url_for('history') }}">History</a>
+
+      {% if logged_in_user and logged_in_user.role == 'admin' %}
+      <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+      {% endif %}
+
+      <a href="{{ url_for('description') }}">About project</a>
+
+      <form class="logout" method="POST" action="{{ url_for('logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit">Log out ↗</button>
+      </form>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+
+      <!-- INTRODUCTION -->
+
+      <section class="hero" id="overview">
+        <div class="eyebrow">
+          <span class="dot"></span>
+          Machine intelligence for industry
+        </div>
+
+        <h1>
+          Make machine downtime<br>
+          a thing of the <span>past.</span>
+        </h1>
+
+        <p class="lead">
+          Turn machine measurements into actionable predictions.
+          SmartPM uses a trained Random Forest model to estimate
+          potential equipment failure and help users explore
+          predictive maintenance.
+        </p>
+
+        <div class="hero-bottom">
+          <div class="hero-actions">
+            <a class="cta" href="#prediction">Try a prediction ↓</a>
+            <a class="outline" href="#performance">
+              Explore model performance
+            </a>
+          </div>
+
+          <span class="micro">
+            RANDOM FOREST · MACHINE LEARNING · INDUSTRIAL ANALYTICS
+          </span>
+        </div>
+      </section>
+
+      <div class="ticker">
+        <span>Machine data</span>
+        <span>Failure prediction</span>
+        <span>Model analytics</span>
+        <span>Smarter decisions</span>
+      </div>
+
+      <!-- WORKFLOW -->
+
+      <section class="section" id="approach">
+        <div class="section-head reveal">
+          <div>
+            <div class="eyebrow">01 — Our approach</div>
+            <h2>From raw measurements to<br>meaningful insight.</h2>
+          </div>
+
+          <p>
+            SmartPM demonstrates how machine-learning predictions
+            can support a proactive maintenance workflow. Enter
+            machine values, evaluate the prediction, and review
+            the model's performance.
+          </p>
+        </div>
+
+        <div class="cards">
+          <article class="card reveal">
+            <div class="cardicon">⌁</div>
+            <div class="number" style="margin-top:20px">01 / INPUT</div>
+            <h3>Collect measurements</h3>
+            <p>
+              Provide machine type, air and process temperature,
+              rotational speed, torque, and tool wear.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <div class="cardicon">◈</div>
+            <div class="number" style="margin-top:20px">02 / PROCESS</div>
+            <h3>Validate the data</h3>
+            <p>
+              Check input values before passing the six selected
+              features to the trained model.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <div class="cardicon">⌘</div>
+            <div class="number" style="margin-top:20px">03 / PREDICT</div>
+            <h3>Run the ML model</h3>
+            <p>
+              The Random Forest classifier evaluates machine data
+              and returns a predicted class.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <div class="cardicon">↗</div>
+            <div class="number" style="margin-top:20px">04 / REVIEW</div>
+            <h3>Understand the result</h3>
+            <p>
+              Review the predicted status alongside failure
+              probability, risk level, and model charts.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- PROJECT OVERVIEW -->
+
+      <section class="section">
+        <div class="story">
+          <div class="story-panel reveal">
+            <div class="eyebrow">Built for better decisions</div>
+
+            <h2>
+              Don't just react.<br>
+              <span class="accent">Learn from the data.</span>
+            </h2>
+
+            <p>
+              Unexpected machine failure can interrupt production
+              and require unplanned maintenance. Predictive
+              maintenance uses data-driven methods to help identify
+              patterns associated with potential failure.
+            </p>
+
+            <div class="benefits">
+              <div class="benefit">
+                <span class="tick">✓</span>
+                <span>Explore a trained machine-learning classifier.</span>
+              </div>
+
+              <div class="benefit">
+                <span class="tick">✓</span>
+                <span>View evaluation metrics and model visualizations.</span>
+              </div>
+
+              <div class="benefit">
+                <span class="tick">✓</span>
+                <span>Use a web interface to test machine measurements.</span>
+              </div>
+
+              <div class="benefit">
+                <span class="tick">✓</span>
+                <span>Store prediction history in the MySQL database.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="photo-panel reveal">
+            <img
+              src="https://images.unsplash.com/photo-1567789884554-0b844b597180?auto=format&fit=crop&w=1200&q=85"
+              alt="Industrial machine equipment"
+            >
+
+            <div class="photo-overlay"></div>
+
+            <div class="photo-caption">
+              <span>Predictive maintenance</span>
+              <h3>Turn machine data into informed maintenance decisions.</h3>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MACHINE PREDICTION -->
+
+      <section class="section" id="prediction">
+        <div class="section-head reveal">
+          <div>
+            <div class="eyebrow">02 — Machine analysis</div>
+            <h2>Predict before<br>downtime happens.</h2>
+          </div>
+
+          <p>
+            Enter the machine measurements below and click
+            Analyze machine condition to run the Random Forest
+            prediction.
+          </p>
+        </div>
+
+        <div class="prediction">
+          <div class="prediction-intro reveal">
+            <div class="eyebrow">SmartPM prediction engine</div>
+
+            <h2>
+              Every reading<br>
+              tells a <span class="accent">story.</span>
+            </h2>
+
+            <p>
+              The model evaluates six machine features to estimate
+              the likelihood of failure. Review the result and use
+              the maintenance recommendation as a guide for further
+              inspection.
+            </p>
+
+            <div class="note-box">
+              <strong>Important:</strong>
+              The output is a machine-learning estimate, not a
+              guarantee of machine safety or failure. Always follow
+              qualified maintenance procedures.
+            </div>
+          </div>
+
+          <div class="formbox reveal">
+            <div class="form-head">
+              <h3>Machine parameters</h3>
+              <span class="badge">Random Forest ML</span>
+            </div>
+
+            <form
+              id="predictionForm"
+              method="POST"
+              action="{{ url_for('predict') }}"
+            >
+              <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+              >
+
+              <div class="fields">
+                <div class="field">
+                  <label for="machine_type">Machine type</label>
+                  <select id="machine_type" name="machine_type" required>
+                    <option value="">Select type</option>
+                    <option value="L"
+                      {% if machine_type is defined and machine_type == 'L' %}selected{% endif %}>
+                      L — Low
+                    </option>
+                    <option value="M"
+                      {% if machine_type is defined and machine_type == 'M' %}selected{% endif %}>
+                      M — Medium
+                    </option>
+                    <option value="H"
+                      {% if machine_type is defined and machine_type == 'H' %}selected{% endif %}>
+                      H — High
+                    </option>
+                  </select>
+                  <div class="hint">Select the machine quality type.</div>
+                </div>
+
+                <div class="field">
+                  <label for="air_temperature">Air temperature (K)</label>
+                  <input
+                    id="air_temperature"
+                    name="air_temperature"
+                    type="number"
+                    min="250"
+                    max="350"
+                    step="any"
+                    placeholder="e.g. 300"
+                    value="{{ air_temperature if air_temperature is defined else '' }}"
+                    required
+                  >
+                  <div class="hint">Allowed: 250–350 K.</div>
+                </div>
+
+                <div class="field">
+                  <label for="process_temperature">Process temperature (K)</label>
+                  <input
+                    id="process_temperature"
+                    name="process_temperature"
+                    type="number"
+                    min="250"
+                    max="400"
+                    step="any"
+                    placeholder="e.g. 310"
+                    value="{{ process_temperature if process_temperature is defined else '' }}"
+                    required
+                  >
+                  <div class="hint">Allowed: 250–400 K.</div>
+                </div>
+
+                <div class="field">
+                  <label for="rotational_speed">Rotational speed (RPM)</label>
+                  <input
+                    id="rotational_speed"
+                    name="rotational_speed"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    step="any"
+                    placeholder="e.g. 1500"
+                    value="{{ rotational_speed if rotational_speed is defined else '' }}"
+                    required
+                  >
+                  <div class="hint">Allowed: 1–10,000 RPM.</div>
+                </div>
+
+                <div class="field">
+                  <label for="torque">Torque (Nm)</label>
+                  <input
+                    id="torque"
+                    name="torque"
+                    type="number"
+                    min="0"
+                    max="1000"
+                    step="any"
+                    placeholder="e.g. 40"
+                    value="{{ torque if torque is defined else '' }}"
+                    required
+                  >
+                  <div class="hint">Allowed: 0–1,000 Nm.</div>
+                </div>
+
+                <div class="field">
+                  <label for="tool_wear">Tool wear (minutes)</label>
+                  <input
+                    id="tool_wear"
+                    name="tool_wear"
+                    type="number"
+                    min="0"
+                    max="1000"
+                    step="any"
+                    placeholder="e.g. 100"
+                    value="{{ tool_wear if tool_wear is defined else '' }}"
+                    required
+                  >
+                  <div class="hint">Allowed: 0–1,000 minutes.</div>
+                </div>
+              </div>
+
+              <button
+                class="submit"
+                type="submit"
+                id="predictButton"
+              >
+                Analyze machine condition →
+              </button>
+            </form>
+
+            <!-- PREDICTION RESULT -->
+            {% if result %}
+            <div
+              class="result {% if status == 'normal' %}normal{% else %}failure{% endif %}"
+              id="prediction-result"
+              role="status"
+              aria-live="polite"
+            >
+              <div class="result-label">Prediction result</div>
+
+              <div class="result-title">{{ result }}</div>
+
+              <p>{{ message }}</p>
+
+              {% if failure_probability is defined %}
+              <div class="risk-panel">
+                <div class="risk-heading">
+                  <span>Machine failure probability</span>
+                  <strong>{{ failure_probability }}%</strong>
+                </div>
+
+                <div
+                  class="probability-track"
+                  role="progressbar"
+                  aria-label="Estimated machine failure probability"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="{{ failure_probability }}"
+                >
+                  <div
+                    class="probability-fill risk-{{ risk_status }}"
+                    style="width: {{ failure_probability }}%;"
+                  ></div>
+                </div>
+
+                <div class="risk-details">
+                  <span>Risk level</span>
+
+                  <strong class="risk-label risk-text-{{ risk_status }}">
+                    {{ risk_level }}
+                  </strong>
+                </div>
+
+                <p class="threshold-note">
+                  Prediction threshold: {{ (threshold * 100)|int }}%
+                </p>
+
+                {% if recommendation is defined %}
+                <div class="maintenance-note">
+                  <strong>Maintenance recommendation</strong>
+                  <p>{{ recommendation }}</p>
+                </div>
+                {% endif %}
+
+                <p class="risk-disclaimer">
+                  This is a machine-learning estimate, not a guarantee
+                  of failure. Risk categories are experimental project
+                  settings.
+                </p>
+              </div>
+              {% endif %}
+
+              {% if prediction_id is defined and prediction_id %}
+              <div class="download-row">
+                <a
+                  class="cta"
+                  href="{{ url_for('download_prediction_report', prediction_id=prediction_id) }}"
+                >
+                  Download PDF Prediction Report ↓
+                </a>
+
+                <a class="outline" href="{{ url_for('history') }}">
+                  View prediction history
+                </a>
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+
+      <!-- MODEL PERFORMANCE -->
+
+      <section class="section" id="performance">
+        <div class="section-head reveal">
+          <div>
+            <div class="eyebrow">03 — Model performance</div>
+            <h2>Measure the model.<br>Understand the outcome.</h2>
+          </div>
+
+          <p>
+            Review the evaluation metrics calculated by the
+            application from its configured test split.
+          </p>
+        </div>
+
+        <div class="metrics">
+          <article class="metric reveal">
+            <label>Accuracy</label>
+            <strong>{{ accuracy|default(0) }}%</strong>
+            <small>Overall correct predictions</small>
+          </article>
+
+          <article class="metric reveal">
+            <label>Precision</label>
+            <strong>{{ precision|default(0) }}%</strong>
+            <small>Predicted failures that were correct</small>
+          </article>
+
+          <article class="metric reveal">
+            <label>Recall</label>
+            <strong>{{ recall|default(0) }}%</strong>
+            <small>Actual failures identified</small>
+          </article>
+
+          <article class="metric reveal">
+            <label>F1 Score</label>
+            <strong>{{ f1|default(0) }}%</strong>
+            <small>Balance between precision and recall</small>
+          </article>
+        </div>
+
+        <div class="charts">
+          <article class="chartbox reveal">
+            <h3>Confusion matrix</h3>
+            <p>
+              Compare the model's predicted classes with the
+              actual classes in the evaluation dataset.
+            </p>
+
+            <img
+              src="{{ url_for('static', filename='confusion_matrix.png') }}"
+              alt="Random Forest confusion matrix"
+              loading="lazy"
+            >
+          </article>
+
+          <article class="chartbox reveal">
+            <h3>Feature importance</h3>
+            <p>
+              View the relative feature importance calculated
+              by the trained model.
+            </p>
+
+            <img
+              src="{{ url_for('static', filename='feature_importance.png') }}"
+              alt="Random Forest feature importance"
+              loading="lazy"
+            >
+          </article>
+        </div>
+      </section>
+
+      <!-- CLOSING -->
+
+      <section class="section">
+        <div class="closing reveal">
+          <div>
+            <div class="eyebrow">SmartPM · Predictive maintenance</div>
+
+            <h2>Better insights start with better data.</h2>
+
+            <p>
+              Use the dashboard to test machine readings, examine
+              predictions, and review your saved prediction history.
+              Model predictions should support—not replace—qualified
+              maintenance decisions.
+            </p>
+          </div>
+
+          <a class="cta" href="#prediction">Analyze a machine →</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <span>© 2026 SmartPM — Smart Predictive Maintenance System</span>
+    <span>Machine Learning · Random Forest · MySQL</span>
+  </footer>
+
+  <script>
+    // Scroll progress indicator
+    const progressBar = document.getElementById("progressBar");
+
+    function updateProgress() {
+      const scrollableHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+      const progress = scrollableHeight > 0
+        ? (window.scrollY / scrollableHeight) * 100
+        : 0;
+
+      progressBar.style.width = progress + "%";
+    }
+
+    window.addEventListener("scroll", updateProgress);
+    window.addEventListener("resize", updateProgress);
+    updateProgress();
+
+    // Reveal elements as they enter the viewport
+    const revealElements = document.querySelectorAll(".reveal");
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.12
+        }
+      );
+
+      revealElements.forEach(function(element) {
+        observer.observe(element);
+      });
+    } else {
+      revealElements.forEach(function(element) {
+        element.classList.add("visible");
+      });
+    }
+
+    // Prevent accidental double submission and show progress
+    const predictionForm = document.getElementById("predictionForm");
+    const predictButton = document.getElementById("predictButton");
+
+    if (predictionForm && predictButton) {
+      predictionForm.addEventListener("submit", function(event) {
+        if (!predictionForm.checkValidity()) {
+          event.preventDefault();
+          predictionForm.reportValidity();
+          return;
+        }
+
+        predictButton.disabled = true;
+        predictButton.textContent = "Analyzing machine data...";
+      });
+    }
+
+    // Scroll to the result after Flask renders the prediction
+    window.addEventListener("load", function() {
+      const result = document.getElementById("prediction-result");
+
+      if (result) {
+        result.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+      }
+    });
+  </script>
+</body>
+</html>

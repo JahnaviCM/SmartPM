@@ -1,0 +1,6 @@
+Model,Accuracy (%),Failure Precision (%),Failure Recall (%),Failure F1 (%),Training Time (seconds)
+Random Forest,98.4,87.5,61.76,72.41,0.22
+Decision Tree,97.75,66.67,67.65,67.15,0.024
+KNN,97.4,83.33,29.41,43.48,0.01
+SVM,97.2,87.5,20.59,33.33,0.131
+Logistic Regression,96.75,63.64,10.29,17.72,0.013

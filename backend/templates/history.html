@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction History | SmartPM</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      background: #101713;
+      color: #f1f5f2;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+    }
+
+    .subtitle,
+    .count {
+      color: #a7b6ac;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #c9f269;
+      color: #18231e;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: #19231d;
+      border: 1px solid #34483a;
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1250px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 13px;
+      text-align: left;
+      border-bottom: 1px solid #34483a;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #24352a;
+      color: #c9f269;
+      position: sticky;
+      top: 0;
+    }
+
+    tbody tr:hover {
+      background: #202e24;
+    }
+
+    .risk {
+      font-weight: 700;
+    }
+
+    .low {
+      color: #61e69a;
+    }
+
+    .medium {
+      color: #ffd166;
+    }
+
+    .high {
+      color: #ff7777;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 45px;
+      color: #a7b6ac;
+    }
+
+    .recommendation {
+      white-space: normal;
+      min-width: 220px;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header class="header">
+      <div>
+        <h1>Prediction History</h1>
+        <p class="subtitle">
+          Review your previous machine predictions.
+        </p>
+      </div>
+
+      <a class="button" href="{{ url_for('home') }}">
+        ← Back to Dashboard
+      </a>
+    </header>
+
+    <p class="count">
+      Showing {{ records|length }} most recent record(s), up to 100.
+    </p>
+
+    <div class="table-wrap">
+      {% if records %}
+      <table>
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Type</th>
+            <th>Air Temp (K)</th>
+            <th>Process Temp (K)</th>
+            <th>Speed (RPM)</th>
+            <th>Torque (Nm)</th>
+            <th>Tool Wear (min)</th>
+            <th>Prediction</th>
+            <th>Failure Probability</th>
+            <th>Risk</th>
+            <th>Threshold</th>
+            <th>Recommendation</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for record in records %}
+          <tr>
+            <td>{{ record["created_at"] }}</td>
+            <td>{{ record["machine_type"] }}</td>
+
+            <td>
+              {{ "%.2f"|format(record["air_temperature"]) }}
+            </td>
+
+            <td>
+              {{ "%.2f"|format(record["process_temperature"]) }}
+            </td>
+
+            <td>
+              {{ "%.0f"|format(record["rotational_speed"]) }}
+            </td>
+
+            <td>
+              {{ "%.2f"|format(record["torque"]) }}
+            </td>
+
+            <td>
+              {{ "%.0f"|format(record["tool_wear"]) }}
+            </td>
+
+            <td>{{ record["result"] }}</td>
+
+            <td>
+              {{ "%.2f"|format(record["failure_probability"]) }}%
+            </td>
+
+            <td>
+              <span class="risk {{ record['risk_level']|lower }}">
+                {{ record["risk_level"] }}
+              </span>
+            </td>
+
+            <td>
+              {{ "%.2f"|format(record["threshold"]) }}
+            </td>
+
+            <td class="recommendation">
+              {{ record["recommendation"] }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+      <div class="empty">
+        <h2>No prediction history yet</h2>
+        <p>Return to the dashboard and make your first prediction.</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>

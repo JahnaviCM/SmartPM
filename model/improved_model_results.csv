@@ -1,0 +1,4 @@
+Model,Accuracy (%),Failure Precision (%),Failure Recall (%),Failure F1 (%),Training Time (seconds)
+Original Random Forest,98.4,87.5,61.76,72.41,0.217
+Balanced Shallow Forest,98.4,90.91,58.82,71.43,0.376
+Balanced Random Forest,98.25,90.24,54.41,67.89,0.393

@@ -1,0 +1,39 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+.secret_key
+backend/.secret_key
+*.pem
+*.key
+*.crt
+
+# Python environments and cache
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Local databases and database backups
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
+
+# Logs and temporary files
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Private application keys
+**/.secret_key
+
+# SQL exports and database backups
+*.sql

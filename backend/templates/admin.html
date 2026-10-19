@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPM | Admin Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #090d12;
+            color: #e8edf5;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 22px 5%;
+            border-bottom: 1px solid #202936;
+            background: #0d131c;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .brand span {
+            color: #60a5fa;
+        }
+
+        .admin-label {
+            color: #93c5fd;
+            background: #142840;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        main {
+            width: min(1100px, 90%);
+            margin: 40px auto;
+        }
+
+        .heading {
+            margin-bottom: 28px;
+        }
+
+        .heading h1 {
+            margin: 0 0 8px;
+            font-size: clamp(25px, 4vw, 34px);
+        }
+
+        .heading p {
+            margin: 0;
+            color: #9aa8bb;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: #111923;
+            border: 1px solid #263241;
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .stat-card p {
+            color: #9aa8bb;
+            margin: 0 0 12px;
+        }
+
+        .stat-card h2 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .panel {
+            background: #111923;
+            border: 1px solid #263241;
+            border-radius: 14px;
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        .panel h2 {
+            font-size: 19px;
+            margin: 0 0 20px;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #263241;
+            white-space: nowrap;
+        }
+
+        th {
+            color: #9aa8bb;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .role, .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .role {
+            background: #172b45;
+            color: #93c5fd;
+        }
+
+        .approved {
+            background: #123528;
+            color: #86efac;
+        }
+
+        .pending {
+            background: #3b2c16;
+            color: #fcd34d;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 9px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #344154;
+            background: #17212e;
+            color: #e8edf5;
+        }
+
+        .btn:hover {
+            background: #243347;
+        }
+
+        .logout {
+            background: #172b45;
+            border-color: #284b70;
+        }
+
+        .logout:hover {
+            background: #203b5c;
+        }
+
+        footer {
+            text-align: center;
+            color: #718096;
+            padding: 28px 12px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 18px 5%;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+
+            main {
+                margin-top: 28px;
+            }
+
+            .panel {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">Smart<span>PM</span></div>
+        <span class="admin-label">ADMINISTRATOR</span>
+    </header>
+
+    <main>
+        <section class="heading">
+            <h1>Admin Dashboard</h1>
+            <p>Manage and review registered SmartPM accounts.</p>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <p>Total registered users</p>
+                <h2>{{ users|length }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Approved accounts</p>
+                <h2>{{ users|selectattr('approved')|list|length }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Pending accounts</p>
+                <h2>{{ users|rejectattr('approved')|list|length }}</h2>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Registered Accounts</h2>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Account Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>
+                                <span class="role">
+                                    {{ user.role|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user.approved %}
+                                <span class="status approved">Approved</span>
+                                {% else %}
+                                <span class="status pending">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4">No registered accounts found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="actions">
+                <a class="btn" href="{{ url_for('home') }}">
+                    Back to Dashboard
+                </a>
+
+                <a class="btn" href="{{ url_for('history') }}">
+                    Prediction History
+                </a>
+
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button class="btn logout" type="submit">Logout</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        SmartPM · Secure Predictive Maintenance System
+    </footer>
+</body>
+</html>
